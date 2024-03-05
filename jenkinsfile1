@@ -76,4 +76,5 @@ def getDevVersion() {
 }
 def getReleaseVersion() {
     // Implementation of getReleaseVersion function...
+    }
 }
