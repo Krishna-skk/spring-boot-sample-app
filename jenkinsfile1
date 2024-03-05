@@ -2,7 +2,7 @@ pipeline {
     // run on Jenkins nodes that have the 'ansible' label
     agent { label 'ansible' }
     // global env variables
-    environment {
+    //environment {
         //EMAIL_RECIPIENTS = 'mahmoud.romeh@test.com'
     }
     stages {
