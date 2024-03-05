@@ -67,6 +67,7 @@ pipeline {
 //}
 def developmentArtifactVersion = ''
 def releasedVersion = ''
+
 @NonCPS
 def getChangeString() {
     // Implementation of getChangeString function...
