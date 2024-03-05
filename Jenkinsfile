@@ -239,7 +239,6 @@ pipeline {
         // let's time it out after an hour.
         timeout(time: 25, unit: 'MINUTES')
     }
-
 }
 def developmentArtifactVersion = ''
 def releasedVersion = ''
