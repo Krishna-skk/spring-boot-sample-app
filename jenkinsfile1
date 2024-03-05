@@ -1,0 +1,79 @@
+pipeline {
+    // run on Jenkins nodes that have the 'ansible' label
+    agent { label 'ansible' }
+    // global env variables
+    environment {
+        //EMAIL_RECIPIENTS = 'mahmoud.romeh@test.com'
+    }
+    stages {
+        stage('Build with unit testing') {
+            steps {
+                // Run the Maven build
+                script {
+                    // Get the Maven tool.
+                    // ** NOTE: This 'M3' Maven tool must be configured
+                    // **       in the global configuration.
+                    echo 'Pulling...' + env.BRANCH_NAME
+                    def mvnHome = tool 'maven'
+                    if (isUnix()) {
+                        def targetVersion = getDevVersion()
+                        echo 'target build version...'
+                        echo targetVersion
+                        sh "'${mvnHome}/bin/mvn' -Dintegration-tests.skip=true -Dbuild.number=${targetVersion} clean package"
+                        def pom = readMavenPom file: 'pom.xml'
+                        // get the current development version
+                        developmentArtifactVersion = "${pom.version}-${targetVersion}"
+                        echo pom.version
+                        // execute the unit testing and collect the reports
+                        junit '**/*target/surefire-reports/TEST-*.xml'
+                        // Archive the WAR file as an artifact
+                        archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
+                    } else {
+                        bat(/"${mvnHome}\bin\mvn" -Dintegration-tests.skip=true clean package/)
+                        def pom = readMavenPom file: 'pom.xml'
+                        echo pom.version
+                        junit '**/*target/surefire-reports/TEST-*.xml'
+                        // Archive the WAR file as an artifact
+                        archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
+                    }
+                }
+            }
+        }
+        // Other stages...
+    }
+    // post {
+    //     always {
+    //         // Let's wipe out the workspace before we finish!
+    //         deleteDir()
+    //     }
+    //     success {
+    //         sendEmail("Successful");
+    //     }
+    //     unstable {
+    //         sendEmail("Unstable");
+    //     }
+    //     failure {
+    //         sendEmail("Failed");
+    //     }
+    // }
+    options {
+        // For example, we'd like to make sure we only keep 10 builds at a time, so
+        // we don't fill up our storage!
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+        // And we'd really like to be sure that this build doesn't hang forever, so
+        // let's time it out after an hour.
+        timeout(time: 25, unit: 'MINUTES')
+    }
+}
+def developmentArtifactVersion = ''
+def releasedVersion = ''
+@NonCPS
+def getChangeString() {
+    // Implementation of getChangeString function...
+}
+def getDevVersion() {
+    // Implementation of getDevVersion function...
+}
+def getReleaseVersion() {
+    // Implementation of getReleaseVersion function...
+}
